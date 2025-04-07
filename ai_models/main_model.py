@@ -27,7 +27,6 @@ def react_handler(user_text):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conv = '\n'.join([f"{entry['role']}: {entry['content']}" for entry in conv_hist])
     
-    # -------------------- First AI Call to Process Intent --------------------
     prompt = (
         INTENT_PROMPT
         .replace("{conversation_history}", conv)
@@ -41,7 +40,7 @@ def react_handler(user_text):
     except Exception as e:
         error = "[ERROR]: Invalid response from the LLM: Please contact developer"
         intent_response = {}
-
+    
     error = intent_response.get("error")
     intent = intent_response.get("intent")
     actions = intent_response.get("actions")
@@ -53,13 +52,13 @@ def react_handler(user_text):
         details = actions.get("details", actions.get("event_details", {}))
         if details:
             error = details.get("error")
-
+    
+    # Handle MongoDB Intents
     mongo_intents = [
         "fetching_messages", "fetching_emails", "fetching_health_records",
         "fetching_daily_summary", "fetching_weekly_report", "fetching_call_data"
     ]
     
-    # -------------------- Handle MongoDB Related Intents --------------------
     if not error and intent and intent.lower() in mongo_intents:
         if not isinstance(actions, dict) or actions.get("type") != "mongo_query":
             error = "[ERROR]: Missing or invalid mongo_query action."
@@ -74,7 +73,7 @@ def react_handler(user_text):
                 except Exception as e:
                     error = f"[ERROR]: Error fetching data from {collection}: {str(e)}"
     
-    # -------------------- Handle Calendar Intent --------------------
+    # Handle Calendar Intent
     elif not error and intent and intent.lower() == "calendar":
         if not isinstance(actions, dict):
             error = "[ERROR]: Missing calendar action object."
@@ -120,7 +119,7 @@ def react_handler(user_text):
                     else:
                         error = f"[ERROR]: Unknown calendar action type: {event_type}"
     
-    # -------------------- Handle Flight Booking Intent --------------------
+    # Handle Flight and Hotel Booking Intent 
     elif not error and intent and intent.lower() == "booking_flight":
         if not isinstance(actions, dict) or actions.get("type") != "booking_request":
             error = "[ERROR]: Missing or invalid booking request for flight."
@@ -141,7 +140,6 @@ def react_handler(user_text):
                     except Exception as e:
                         error = f"[ERROR]: Flight booking failed: {str(e)}"
     
-    # -------------------- Handle Hotel Booking Intent --------------------
     elif not error and intent and intent.lower() == "booking_hotel":
         if not isinstance(actions, dict) or actions.get("type") != "booking_request":
             error = "[ERROR]: Missing or invalid booking request for hotel."
@@ -161,22 +159,20 @@ def react_handler(user_text):
                     except Exception as e:
                         error = f"[ERROR]: Hotel booking failed: {str(e)}"
     
-    # -------------------- Other Intents --------------------
+    # Other Intents
     else:
         data = ""
     
     if error:
         data = error
-
-    # -------------------- Second AI Call to Generate Final Response --------------------
-    conv_hist.append({"role": "user", "content": user_text})
     
+    conv_hist.append({"role": "user", "content": user_text})
     res_prompt = (
         RESPONSE_PROMPT
         .replace("{conversation_history}", conv)
         .replace("{current_time}", current_time)
         .replace("{user_query}", user_text)
-        .replace("{intent}", intent if intent else "unknown")
+        .replace("{intent}", intent if intent else "other")
         .replace("{backend_response}", str(data))
     )
     
@@ -188,5 +184,4 @@ def react_handler(user_text):
     with open(HISTORY, 'w', encoding='utf-8') as f:
         json.dump(conv_hist, f, indent=2)
     
-
     return ai_response

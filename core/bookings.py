@@ -9,7 +9,26 @@ class AmadeusBookingEngine:
             client_secret=AMADEUS_SECRET
         )
     
+    def get_iata(self, city_name):
+        try:
+            response = self.amadeus.reference_data.locations.get(
+                keyword=city_name,
+                subType='CITY'
+            )
+            return response.data[0].get('iataCode')
+        except ResponseError as error:
+            return f"[ERROR]: {error}"
+    
+    def check_iata(self, code):
+        return isinstance(code, str) and len(code) == 3 and code.isalpha() and code.isupper()
+
     def search_flights(self, origin, destination, departure_date, adults=1):
+        if not self.check_iata(origin):
+           origin = self.get_iata(origin)
+           print(f"Origin IATA code converted: {origin}")
+        if not self.check_iata(destination):
+            destination = self.get_iata(destination)
+            print(f"Destination IATA code converted: {destination}")
         try:
             response = self.amadeus.shopping.flight_offers_search.get(
                 originLocationCode=origin,
@@ -23,8 +42,10 @@ class AmadeusBookingEngine:
             return f"An error occurred: {error}"
     
     def search_hotels(self, city_code, check_in_date, check_out_date, adults=1):
+        if not self.check_iata(city_code):
+            city_code = self.get_iata(city_code)
+            print(f"City IATA code converted: {city_code}")
         try:
-
             hotels_by_city = self.amadeus.reference_data.locations.hotels.by_city.get(cityCode=city_code)
             hotelIds = [hotel.get('hotelId') for hotel in hotels_by_city.data[:3]]
 

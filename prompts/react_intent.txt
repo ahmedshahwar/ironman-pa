@@ -36,8 +36,9 @@ Return an error if:
   • For "reschedule": either "previous time" or "new time" is missing.
 
 For booking:
-- For "booking_flight": ensure "departure_location", "arrival_location", and "date" are present. (Cities should be converted to IATA codes.)
-- For "booking_hotel": ensure "location", "check_in", and "check_out" are present. (Convert city to IATA code.)
+- For "booking_flight": ensure "departure_location", "arrival_location", and "date" are present.
+- For "booking_hotel": ensure "location", "check_in", and "check_out" are present.
+- Use IATA codes for locations.
 "actions" must include:
 {
   "type": "booking_request",
