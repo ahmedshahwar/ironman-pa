@@ -239,12 +239,15 @@ def initiate_call():
 # ---------------------------- React Page
 from ai_models.main_model import react_handler
 
-@app.route('/', methods=["POST", "GET"])
+@app.route('/api', methods=["POST"])
 def react():
     try:
-        text = request.get_json().get("text", "")
+        data = request.get_json()
+        text = data.get("message", "").strip()
+        print("Received text:", text)
         if text:
             response = react_handler(text)
+            print("\nResponse from AI:", response)
             return jsonify({"response": response}), 200
         else:
             return jsonify({"error": "No text provided"}), 400
