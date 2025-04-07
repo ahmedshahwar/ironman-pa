@@ -56,3 +56,8 @@ if not NGROK_URL:
 
 # ---------------------------- Deepgram Setup
 DEEPGRAM_API = os.getenv("DEEPGRAM_API")
+
+
+# ---------------------------- AMADEUS Setup
+AMADEUS_API = os.getenv("AMADEUS_API")
+AMADEUS_SECRET = os.getenv("AMADEUS_SECRET")

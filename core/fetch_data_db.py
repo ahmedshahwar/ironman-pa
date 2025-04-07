@@ -3,7 +3,9 @@ import csv
 import datetime
 from pathlib import Path
 
-from setups import message_collection, email_collection, task_collection, health_collection, insight_collection
+from setups import health_collection, message_collection, email_collection, \
+                    task_collection, insight_collection, call_collection, \
+                    daily_sum_collection, weekly_report_collection
 
 # from pymongo import MongoClient
 # from dotenv import load_dotenv
@@ -160,3 +162,31 @@ def csv_for_analysis(purpose: str, date: str):
         else:
             raise ValueError("Invalid purpose. Choose 'daily summary' or 'weekly health report'.")
             return None
+
+
+def fetch_data(collection, criteria):
+    """
+    Fetches data from a specified MongoDB collection based on given criteria.
+    Returns the data in a structured format.
+    """
+
+    if collection == "message_collection":
+        col_ = message_collection
+    elif collection == "email_collection":
+        col_ = email_collection
+    elif collection == "health_collection":
+        col_ = health_collection
+    elif collection == "call_collection":
+        col_ = call_collection
+    elif collection == "daily_sum_collection":
+        col_ = daily_sum_collection
+    elif collection == "weekly_report_collection":
+        col_ = weekly_report_collection
+    else:
+        return f"[ERROR]: Invalid collection name."    
+    try:
+        data = list(col_.find(criteria))
+        return data
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return None

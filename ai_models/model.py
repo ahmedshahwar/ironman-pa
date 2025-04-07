@@ -1,6 +1,7 @@
 import json
 import csv
 from pathlib import Path
+from datetime import datetime
 
 from setups import llm, llm_small
 # ---------------------------- Read AI Prompts
@@ -25,8 +26,11 @@ llm_summary = llm
 # ---------------------------- AI Processing Functions
 def invoke_ai(llm, prompt_template, text, last_summary=None):
     """Helper function to send formatted prompt to LLM and return JSON response."""
+    time_ = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if prompt_template == PROMPTS["weekly_report"] and last_summary:
         prompt = prompt_template.replace("{text}", text).replace("{last_text}", last_summary)
+    elif prompt_template == PROMPTS["classification"]:
+        prompt = prompt_template.replace("{text}", text).replace("{time_now}", time_)
     else:
         prompt = prompt_template.replace("{text}", text)
 
@@ -113,5 +117,3 @@ def generate_report(csv_path, reference_day='Monday'):
     curr_week_report.write_text(new_report, encoding="utf-8")
 
     return new_report
-
-

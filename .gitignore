@@ -1,14 +1,9 @@
-# Ignore environment files
 .env
 secrets/
-
-# Ignore Python cache and compiled files
 __pycache__/
 *.pyc
-
-# Ignore test script
 test.py
-
-# Ignore project directories
 ironman/
 frontend/
+test_audio.wav
+ai_models/history.json
