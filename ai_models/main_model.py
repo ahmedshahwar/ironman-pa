@@ -41,6 +41,7 @@ def react_handler(user_text):
         error = "[ERROR]: Invalid response from the LLM: Please contact developer"
         intent_response = {}
     
+    print(f"Intent Response: {intent_response}")
     error = intent_response.get("error")
     intent = intent_response.get("intent")
     actions = intent_response.get("actions")
@@ -165,7 +166,7 @@ def react_handler(user_text):
     
     if error:
         data = error
-    
+    print("Data:", data)
     conv_hist.append({"role": "user", "content": user_text})
     res_prompt = (
         RESPONSE_PROMPT
